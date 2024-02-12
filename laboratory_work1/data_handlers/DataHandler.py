@@ -2,7 +2,6 @@ import numpy as np
 from numpy import ndarray
 from models.DataInfo import DataInfo
 from models.Quartiles import Quartiles
-import statistics
 
 
 def handle_data(data: ndarray[float]) -> DataInfo:
@@ -27,9 +26,6 @@ def handle_data(data: ndarray[float]) -> DataInfo:
     # Get the mode
     mode: ndarray[float] = get_mode(data)
     info.mode = mode
-
-    print(mode)
-    print(statistics.mode(data))
 
     # Get the average absolute deviation
     avg_absolute_deviation: float = sum(abs(data_item - mean) for data_item in data) / n

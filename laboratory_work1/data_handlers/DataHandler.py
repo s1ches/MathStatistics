@@ -2,6 +2,7 @@ import numpy as np
 from numpy import ndarray
 from models.DataInfo import DataInfo
 from models.Quartiles import Quartiles
+import statistics
 
 
 def handle_data(data: ndarray[float]) -> DataInfo:
@@ -20,11 +21,17 @@ def handle_data(data: ndarray[float]) -> DataInfo:
     info.mean = mean
 
     # Get the median
-    median: float = data[n // 2] if n % 2 != 0 else (data[n // 2] + data[n // 2 + 1]) / 2
+    median: float = data[n // 2] if n % 2 != 0 else (data[(n - 1) // 2] + data[(n + 1) // 2]) / 2
     info.median = median
 
-    # Get the average absolute deviation
+    # Get the mode
+    mode: ndarray[float] = get_mode(data)
+    info.mode = mode
 
+    print(mode)
+    print(statistics.mode(data))
+
+    # Get the average absolute deviation
     avg_absolute_deviation: float = sum(abs(data_item - mean) for data_item in data) / n
     info.avg_absolute_deviation = avg_absolute_deviation
 
@@ -69,7 +76,18 @@ def handle_data(data: ndarray[float]) -> DataInfo:
     inter_quartile_latitude = quartiles.third_quantile - quartiles.first_quantile
     info.inter_quartile_latitude = inter_quartile_latitude
 
-    asymmetry_coefficient: float = sum((data_item - mean) ** 3 for data_item in data) / (standard_deviation ** 3)
+    asymmetry_coefficient: float = sum((data_item - mean) ** 3 for data_item in data) / (n * standard_deviation ** 3)
     info.asymmetry_coefficient = asymmetry_coefficient
 
     return info
+
+
+def get_mode(data: ndarray[float]) -> ndarray[float] | None:
+    values, counts = np.unique(data, return_counts=True)
+
+    if len(values) == len(data):
+        return None
+
+    mode_indexes = np.argwhere(counts == np.max(counts))
+
+    return values[mode_indexes].flatten()

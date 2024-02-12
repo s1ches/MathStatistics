@@ -2,7 +2,8 @@ import data_reader.DataReader as DataReader
 import data_handlers.DataHandler as DataHandler
 from numpy import ndarray
 from models.DataInfo import DataInfo
-from constants import *
+from constants import filepath
+from plot_builders.PlotBuilder import PlotBuilder
 
 
 def main() -> None:
@@ -10,8 +11,6 @@ def main() -> None:
 
     data_info: DataInfo = DataHandler.handle_data(data)
     print(data_info)
-
-
 
 
 if __name__ == '__main__':

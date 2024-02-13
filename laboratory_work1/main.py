@@ -12,6 +12,9 @@ def main() -> None:
     data_info: DataInfo = DataHandler.handle_data(data)
     print(data_info)
 
+    plot_builder = PlotBuilder(data_info)
+
+    plot_builder.build_frequency_histogram()
 
 if __name__ == '__main__':
     main()

@@ -4,6 +4,12 @@ Laboratory works on the subject of mathematical statistics for the 2nd year of I
 
 ## First Laboratory Work
 
+#### Using libraries:
+1. pandas
+2. numpy
+3. matplotlib
+4. scipy
+
 #### The first step was to calculate the following quantities:
 1. Mean
 2. Mode

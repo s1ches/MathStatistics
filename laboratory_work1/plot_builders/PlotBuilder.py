@@ -5,6 +5,7 @@ from numpy import ndarray
 import numpy as np
 import constants
 from scipy.stats import norm
+from plot_builders.PlotBuilderHelper import PlotBuilderHelper
 
 
 class PlotBuilder:
@@ -13,26 +14,40 @@ class PlotBuilder:
         self.plot_style: str | None = plot_style
         self.__steps_count: int = data.sample_size // 10
         self.__step: float = data.spread / (self.__steps_count - 1)
+
         self.frequency_histogram_figure, self.frequency_histogram_axis = plt.subplots()
         self.probability_histogram_figure, self.probability_histogram_axis = plt.subplots()
+        self.distribution_function_figure, self.distribution_function_axis = plt.subplots()
+        self.distribution_polygon_figure, self.distribution_polygon_axis = plt.subplots()
+        self.box_plot_figure, self.box_plot_axis = plt.subplots()
 
     def build(self) -> None:
-        plt.style.use(self.plot_style)
-
         self.__build_frequency_histogram()
         self.probability_histogram_axis.plot()
 
         self.__build_probability_histogram()
         self.probability_histogram_axis.plot()
 
+        self.__build_distribution_function()
+        self.distribution_function_axis.plot()
+
+        self.__build_distribution_polygon()
+        self.distribution_polygon_axis.plot()
+
+        self.__build_box_plot()
+        self.box_plot_axis.plot()
+
         self.frequency_histogram_axis.legend(loc="upper left")
         self.probability_histogram_axis.legend(loc="upper left")
+        self.distribution_function_axis.legend(loc="upper left")
+
         plt.show()
 
     def __build_frequency_histogram(self) -> None:
-        boundaries: ndarray[float] = self.__get_boundaries()
+        boundaries: ndarray[float] = PlotBuilderHelper.get_boundaries(self.data, self.__step, self.__steps_count)
 
-        elements_in_boundaries_count: ndarray[float] = self.__get_elements_count_in_boundaries(boundaries)
+        elements_in_boundaries_count: ndarray[float] = PlotBuilderHelper.get_elements_count_in_boundaries(self.data,
+                                                                                                          boundaries)
 
         self.__build_histogram(self.frequency_histogram_axis, boundaries, elements_in_boundaries_count)
 
@@ -40,19 +55,16 @@ class PlotBuilder:
 
         self.__build_data_info(self.frequency_histogram_axis, y_max=max(elements_in_boundaries_count) * 1.2)
 
-        title: str = 'Частотная гистограмма'
-        x_label: str = 'Данные'
-        y_label: str = 'Частота'
-
-        self.__configure_plot(self.frequency_histogram_axis, title, x_label, y_label)
+        PlotBuilderHelper.configure_plot(self.frequency_histogram_axis, 'Частотная гистограмма', 'Данные', 'Частота')
 
     def __build_probability_histogram(self) -> None:
-        boundaries: ndarray[float] = self.__get_boundaries()
+        boundaries: ndarray[float] = PlotBuilderHelper.get_boundaries(self.data, self.__step, self.__steps_count)
 
-        elements_in_boundaries_count: ndarray[float] = self.__get_elements_count_in_boundaries(boundaries)
+        elements_in_boundaries_count: ndarray[float] = PlotBuilderHelper.get_elements_count_in_boundaries(self.data,
+                                                                                                          boundaries)
 
         elements_in_boundaries_probability: ndarray[float] = \
-            self.__get_elements_in_boundaries_probability(elements_in_boundaries_count)
+            PlotBuilderHelper.get_elements_in_boundaries_probability(self.data, elements_in_boundaries_count)
 
         elements_in_boundaries_heights = elements_in_boundaries_probability / self.__step
 
@@ -62,17 +74,53 @@ class PlotBuilder:
 
         self.__build_data_info(self.probability_histogram_axis, y_max=max(elements_in_boundaries_heights) * 1.2)
 
-        title: str = 'Вероятностная гистограмма'
-        x_label: str = 'Y'
-        y_label: str = 'X'
+        PlotBuilderHelper.configure_plot(self.probability_histogram_axis, 'Вероятностная гистограмма', 'X', 'Y')
 
-        self.__configure_plot(self.probability_histogram_axis, title, x_label, y_label)
+    def __build_distribution_function(self) -> None:
+        unic_elements: list[float] = list(set(self.data.variation_series))
 
-    def build_distribution_function(self) -> None:
-        return
+        elements_counts: list[int] = list({i: self.data.variation_series.tolist().count(i)
+                                           for i in self.data.variation_series}.values())
 
-    def build_box_plot(self) -> None:
-        return
+        elements_probability: list[float] = []
+
+        for element in elements_counts:
+            elements_probability.append(element / self.data.sample_size)
+
+        probabilities_sums: list[float] = [sum(elements_probability[:i + 1]) for i in range(len(elements_probability))]
+
+        probabilities_sums = [np.round(item, 4) for item in probabilities_sums]
+
+        unic_elements = sorted(unic_elements)
+
+        self.distribution_function_axis.plot([unic_elements[0] - self.__step, unic_elements[0]], [0, 0], color='blue')
+
+        self.distribution_function_axis.plot([unic_elements[0], unic_elements[0]], [0, elements_probability[0]],
+                                             color='blue')
+
+        self.distribution_function_axis.plot(unic_elements, probabilities_sums, drawstyle='steps', color='blue')
+
+        self.distribution_function_axis.plot([unic_elements[len(unic_elements) - 1], self.data.max_value + self.__step],
+                                             [1, 1], color='blue')
+
+        distribution_function_range = np.arange(self.data.min_value - self.__step, self.data.max_value + self.__step)
+        self.distribution_function_axis.plot(distribution_function_range,
+                                             norm.cdf(distribution_function_range,
+                                                      self.data.mean, self.data.standard_deviation),
+                                             color='red', label='Функция распределения')
+
+        PlotBuilderHelper.configure_plot(self.distribution_function_axis, 'Функция распределения', 'Интервалы',
+                                         'Вероятность попасть левее')
+
+    def __build_distribution_polygon(self) -> None:
+        self.distribution_polygon_axis.scatter(np.arange(0, self.data.sample_size), self.data.variation_series)
+
+        PlotBuilderHelper.configure_plot(self.distribution_polygon_axis, 'Полигон распределения', 'Индексы', 'Данные')
+
+    def __build_box_plot(self) -> None:
+        self.box_plot_axis.boxplot(self.data.variation_series)
+
+        PlotBuilderHelper.configure_plot(self.box_plot_axis, 'Box Plot', '', 'Данные')
 
     def __build_data_info(self, axis, y_max: float, y_min: float = 0) -> None:
         axis.vlines(x=self.data.quartiles.first_quantile, ymin=y_min, ymax=y_max, color='#f500d8',
@@ -114,65 +162,3 @@ class PlotBuilder:
                       self.__step,
                       columns_heights[columns_heights.size - 1],
                       color=constants.plot_figure_color))
-
-    def __get_boundaries(self) -> ndarray[float]:
-        result: list[float] = [self.data.variation_series[0] + self.__step / 2]
-
-        for i in range(1, self.__steps_count - 2):
-            result.append(result[i - 1] + self.__step)
-
-        result.append(result[len(result) - 1] + self.__step)
-
-        return np.array(result)
-
-    def __get_elements_count_in_boundaries(self, boundaries: ndarray[float]) -> ndarray[int]:
-        result = []
-
-        left_bound: float = float('-inf')
-        right_bound: float = boundaries[0]
-
-        result.append(self.__get_elements_count_in_boundary(left_bound, right_bound))
-
-        elements_counted: int = result[0]
-
-        for i in range(boundaries.size - 1):
-            left_bound = boundaries[i]
-            right_bound = boundaries[i + 1]
-            result.append(self.__get_elements_count_in_boundary(left_bound, right_bound, elements_counted))
-            elements_counted += result[len(result) - 1]
-
-        left_bound: float = boundaries[boundaries.size - 1]
-        right_bound: float = float('inf')
-        result.append(self.__get_elements_count_in_boundary(left_bound, right_bound, elements_counted))
-
-        return np.array(result)
-
-    def __get_elements_count_in_boundary(self, left_boundary: float, right_boundary: float, from_index: int = 0) -> int:
-        result: int = 0
-
-        for i in range(from_index, self.data.variation_series.size):
-            if right_boundary > self.data.variation_series[i] >= left_boundary:
-                result += 1
-            else:
-                break
-
-        return result
-
-    def __get_elements_in_boundaries_probability(self, elements_in_boundaries_count: ndarray[float]) -> ndarray[float]:
-        result: list[float] = []
-
-        for element in elements_in_boundaries_count:
-            result.append(element / self.data.sample_size)
-
-        return np.array(result)
-
-    @staticmethod
-    def __configure_plot(axis, title: str, x_label: str, y_label: str) -> None:
-        axis.set_title(title,
-                       fontdict={'fontsize': constants.plot_title_font_size,
-                                 'fontweight': 'bold', 'color': constants.plot_text_color})
-        axis.set_xlabel(x_label,
-                        fontdict={'fontsize': constants.plot_text_font_size, 'color': constants.plot_text_color})
-
-        axis.set_ylabel(y_label,
-                        fontdict={'fontsize': constants.plot_text_font_size, 'color': constants.plot_text_color})

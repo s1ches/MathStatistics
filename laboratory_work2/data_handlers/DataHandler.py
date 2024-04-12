@@ -4,8 +4,6 @@ from scipy import stats
 
 
 def get_lower_confidence_limit_for_variance(data: np.ndarray[float]) -> float:
-    data = np.sort(data)
-
     n = len(data)
 
     mean = np.sum(data) / n

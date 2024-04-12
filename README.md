@@ -48,8 +48,7 @@ Laboratory works on the subject of mathematical statistics for the 2nd year of I
 #### Using libraries:
 1. pandas
 2. numpy
-3. matplotlib
-4. scipy
+3. scipy
 
 ### Task 1
 

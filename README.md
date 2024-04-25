@@ -66,6 +66,29 @@ Laboratory works on the subject of mathematical statistics for the 2nd year of I
 ![image](https://github.com/s1ches/MathStatistics/assets/121990701/fe6209fd-91a2-4466-bf40-5dfa38645443)
 
 
+## Third Laboratory Work
+
+#### Using libraries:
+1. pandas
+2. numpy
+3. matplotlib
+
+#### Task
+
+![image](https://github.com/s1ches/MathStatistics/assets/121990701/fcc56412-0425-411c-b997-35744f591219)
+
+#### Result
+
+##### Calculates
+![image](https://github.com/s1ches/MathStatistics/assets/121990701/b2f0ae46-d347-4635-9149-2120aab3a24d)
+
+
+##### Plot
+
+![image](https://github.com/s1ches/MathStatistics/assets/121990701/6762347f-a3aa-4275-854e-d7c53ffde0f4)
+
+
+
 
 
 

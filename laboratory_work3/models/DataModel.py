@@ -11,7 +11,7 @@ class DataModel:
         self.x_std = np.std(self.x_sample)
         self.y_mean = np.mean(self.y_sample)
         self.y_std = np.std(self.y_sample)
-        self.covariance = 0
+        self.correlation_coefficient = 0
         self.regression_coefficient = 0
         self.y_prediction = y_prediction
         self.x_prediction = 0
@@ -26,7 +26,7 @@ class DataModel:
                 f"Mean Standard Deviation:\n"
                 f"X standard deviation: {self.x_std.__round__(round_digits)}\n"
                 f"Y standard deviation: {self.y_std.__round__(round_digits)}\n\n"
-                f"Covariance: {self.covariance.__round__(round_digits)}\n\n"
+                f"Correlation coefficient: {self.correlation_coefficient.__round__(round_digits)}\n\n"
                 f"Regression coefficient: {self.regression_coefficient.__round__(round_digits)}\n\n"
                 f"Predictions:\n"
                 f"X Prediction: {self.x_prediction.__round__(round_digits)}\n"

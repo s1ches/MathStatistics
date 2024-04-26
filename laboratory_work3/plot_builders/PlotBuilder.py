@@ -24,4 +24,3 @@ def build_plot(data: DataModel):
 
     plt.legend(loc="best")
     plt.show()
-

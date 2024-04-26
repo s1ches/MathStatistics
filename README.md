@@ -108,7 +108,7 @@ Laboratory works on the subject of mathematical statistics for the 2nd year of I
       X standard deviation: 3.972
       Y standard deviation: 2.637
       
-      Covariance: 0.643
+      Correlation coefficient: 0.643
       
       Regression coefficient: 0.968
       
